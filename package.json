@@ -1,0 +1,30 @@
+{
+  "name": "pwa-demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lil-C0der/pwa-demo.git"
+  },
+  "author": "Lil-C0der",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Lil-C0der/pwa-demo/issues"
+  },
+  "homepage": "https://github.com/Lil-C0der/pwa-demo#readme",
+  "dependencies": {
+    "https-proxy-agent": "^2.2.1",
+    "koa": "^2.5.0",
+    "koa-body": "^2.5.0",
+    "koa-router": "^7.4.0",
+    "koa-static": "^4.0.2",
+    "nedb": "^1.8.0",
+    "request": "^2.85.0",
+    "web-push": "^3.3.0"
+  }
+}
