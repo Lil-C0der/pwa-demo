@@ -2,6 +2,10 @@
   margin: 0;
   padding: 0;
 }
+ul,
+li {
+  list-style: none;
+}
 div {
   box-sizing: border-box;
 }
@@ -54,4 +58,44 @@ header .header_btn {
 }
 .sideBtn .sideBtn_notify {
   background-color: crimson;
+}
+.loadingIcon {
+  display: none;
+  margin: 200px auto;
+  width: 80px;
+  height: 80px;
+  background: url(./img/loading.svg) 0 0 no-repeat;
+}
+.list {
+  width: 100%;
+}
+.list li {
+  display: flex;
+  justify-content: flex-start;
+  padding: 16px 10px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+.name {
+  width: 114px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 700;
+  margin-right: 10px;
+}
+.artist {
+  color: #5e5e5e;
+  max-width: 100px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.album {
+  color: #2a2a2a;
+  width: 100px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  margin-left: auto;
 }
