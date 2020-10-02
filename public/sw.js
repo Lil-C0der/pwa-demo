@@ -76,3 +76,14 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(cachePromise);
   return self.clients.claim();
 });
+
+self.addEventListener('push', (e) => {
+  let { data } = e;
+  if (data) {
+    data = data.json();
+    console.log('push 的消息为：', data);
+    self.registration.showNotification(data);
+  } else {
+    console.log('push 的消息为空');
+  }
+});

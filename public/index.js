@@ -136,7 +136,6 @@
   }
 
   const searchBtnEl = document.querySelector('#searchBtn');
-
   searchBtnEl.addEventListener('click', querySongs);
 
   window.onload = () => {
