@@ -1,4 +1,9 @@
 (function () {
+  /**
+   * 注册 Service Worker
+   * @param {string} file
+   * @return {ServiceWorker Registration}
+   */
   function registerSW(file) {
     navigator.serviceWorker.register(file, { scope: '/' });
     return navigator.serviceWorker.ready;
@@ -113,7 +118,6 @@
   }
 
   /**
-   *
    * 注册订阅的相关方法
    * @param {ServiceWorker Registration} registration
    * @param {string} publicKey
@@ -135,6 +139,46 @@
     return axios.post('/subscription', body);
   }
 
+  /**
+   * 获取 Notification 权限
+   * @param {ServiceWorker Registration} registration // 注册返回的对象
+   * @return {ServiceWorker Registration}
+   */
+  function askForPermission(registration) {
+    return Notification.requestPermission().then(() => registration);
+  }
+
+  function onNotifyBtnClick(registration) {
+    let title = 'PWA DEMO';
+    let options = {
+      body: '邀请你一起听歌',
+      icon: '/img/icons/yandhi-128.png',
+      actions: [
+        {
+          action: 'have-a-look',
+          title: '去看看'
+        },
+        {
+          action: 'contact-me',
+          title: '联系我'
+        }
+      ],
+      tag: 'pwa-starter',
+      renotify: true
+    };
+
+    registration.showNotification(title, options);
+  }
+
+  // 监听 notify 按钮
+  function initNotifyListener(registration) {
+    const notifyBtnEl = document.querySelector('#notifyBtn');
+    notifyBtnEl.addEventListener(
+      'click',
+      onNotifyBtnClick.bind(this, registration)
+    );
+  }
+
   const searchBtnEl = document.querySelector('#searchBtn');
   searchBtnEl.addEventListener('click', querySongs);
 
@@ -145,15 +189,19 @@
 
       // 注册 sw，并订阅推送
       registerSW('./sw.js')
-        .then((registration) => subscribePushService(registration, publicKey))
+        // 获取 Notification 权限
+        .then((registration) => askForPermission(registration))
+        .then((registration) => {
+          initNotifyListener(registration);
+          return subscribePushService(registration, publicKey);
+        })
         .then((subscription) => {
           const body = { subscription, uid: new Date().getTime() };
           return sendSubscriptionToServer(body);
         })
         .then((res) => {
-          if (res.status === 200) {
+          res.status === 200 &&
             console.log('订阅信息 Subscription 存储到服务器');
-          }
         });
     }
   };

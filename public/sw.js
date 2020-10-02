@@ -82,6 +82,7 @@ self.addEventListener('push', (e) => {
   if (data) {
     data = data.json();
     console.log('push 的消息为：', data);
+    // 显示提醒消息，属于 Notification
     self.registration.showNotification(data);
   } else {
     console.log('push 的消息为空');

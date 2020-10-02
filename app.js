@@ -28,10 +28,11 @@ webPush.setVapidDetails(
 );
 
 function pushMessage(subscription, data = {}) {
+  // 发送请求到 Push Service
   webPush
     .sendNotification(subscription, data)
     .then((res) => {
-      console.log('push service 的数据', JSON.stringify(res));
+      console.log('push service 的响应', JSON.stringify(res));
       return;
     })
     .catch((err) => {
