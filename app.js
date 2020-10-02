@@ -14,15 +14,11 @@ const router = new Router();
 /*  web-push 消息推送相关  */
 /* ====================== */
 
-const options = {
-  // proxy: 'http://localhost:1087' // 使用FCM（Chrome）需要配置代理
-};
-
 // 公钥和私钥
 const vapidKeys = {
   publicKey:
-    'BOEQSjdhorIf8M0XFNlwohK3sTzO9iJwvbYU-fuXRF0tvRpPPMGO6d_gJC_pUQwBT7wD8rKutpNTFHOHN3VqJ0A',
-  privateKey: 'TVe_nJlciDOn130gFyFYP8UiGxxWd3QdH6C5axXpSgM'
+    'BGlUEIPs0omLiluCRk5_Yyhaz5aAQ5zjiagnYDjbTaf4JObSEjL6SQkrHbrl4DeNHskWrDzpVQI5yqaQ1MVCY4U',
+  privateKey: 'FKb2AUb59pcAxIsKdvOGryS4jEsNKqL3XRm4WopDPsE'
 };
 // 设置 VAPID
 webPush.setVapidDetails(
@@ -33,7 +29,7 @@ webPush.setVapidDetails(
 
 function pushMessage(subscription, data = {}) {
   webPush
-    .sendNotification(subscription, data, options)
+    .sendNotification(subscription, data)
     .then((res) => {
       console.log('push service 的数据', JSON.stringify(res));
       return;

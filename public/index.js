@@ -141,7 +141,7 @@
   window.onload = () => {
     if ('serviceWorker' in navigator && 'PushManager' in window) {
       const publicKey =
-        'BOEQSjdhorIf8M0XFNlwohK3sTzO9iJwvbYU-fuXRF0tvRpPPMGO6d_gJC_pUQwBT7wD8rKutpNTFHOHN3VqJ0A';
+        'BGlUEIPs0omLiluCRk5_Yyhaz5aAQ5zjiagnYDjbTaf4JObSEjL6SQkrHbrl4DeNHskWrDzpVQI5yqaQ1MVCY4U';
 
       // 注册 sw，并订阅推送
       registerSW('./sw.js')
