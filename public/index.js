@@ -1,8 +1,7 @@
-// import Axios from '../node_modules/axios';
-
 (function () {
   function registerSW(file) {
-    return navigator.serviceWorker.register(file, { scope: '/' });
+    navigator.serviceWorker.register(file, { scope: '/' });
+    return navigator.serviceWorker.ready;
   }
 
   function createListItem(data) {
@@ -113,12 +112,51 @@
       });
   }
 
+  /**
+   *
+   * 注册订阅的相关方法
+   * @param {ServiceWorker Registration} registration
+   * @param {string} publicKey
+   * @return {Promise}
+   */
+  function subscribePushService(registration, publicKey) {
+    const subsOptions = {
+      userVisibleOnly: true,
+      applicationServerKey: window.urlBase64ToUnit8Array(publicKey)
+    };
+
+    return registration.pushManager
+      .subscribe(subsOptions)
+      .then((pushSubscription) => pushSubscription);
+  }
+
+  // 将 subscription 发送给后端
+  function sendSubscriptionToServer(body) {
+    return axios.post('/subscription', body);
+  }
+
   const searchBtnEl = document.querySelector('#searchBtn');
 
   searchBtnEl.addEventListener('click', querySongs);
 
   window.onload = () => {
-    registerSW('./sw.js');
+    if ('serviceWorker' in navigator && 'PushManager' in window) {
+      const publicKey =
+        'BOEQSjdhorIf8M0XFNlwohK3sTzO9iJwvbYU-fuXRF0tvRpPPMGO6d_gJC_pUQwBT7wD8rKutpNTFHOHN3VqJ0A';
+
+      // 注册 sw，并订阅推送
+      registerSW('./sw.js')
+        .then((registration) => subscribePushService(registration, publicKey))
+        .then((subscription) => {
+          const body = { subscription, uid: new Date().getTime() };
+          return sendSubscriptionToServer(body);
+        })
+        .then((res) => {
+          if (res.status === 200) {
+            console.log('订阅信息 Subscription 存储到服务器');
+          }
+        });
+    }
   };
 
   window.addEventListener('keypress', function (e) {

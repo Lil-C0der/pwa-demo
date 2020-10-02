@@ -4,7 +4,7 @@ const apiCacheName = 'api-0-1-1';
 const cacheFiles = [
   '/',
   './index.html',
-  // './base64util.js',
+  './base64Utils.js',
   './index.js',
   './style.css',
   './img/book.png',
