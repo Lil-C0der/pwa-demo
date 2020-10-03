@@ -126,3 +126,31 @@ self.addEventListener('notificationclick', (e) => {
     })
   );
 });
+
+function sampleSyncHandler(e) {
+  const options = {
+    method: 'GET'
+  };
+  const request = new Request(`sync?name=Lil-C0der`, options);
+  e.waitUntil(
+    fetch(request).then((response) => {
+      response.json().then((res) => {
+        console.log('response', res);
+      });
+      return response;
+    })
+  );
+}
+
+// 监听 sync 事件，后台同步相关
+self.addEventListener('sync', (e) => {
+  let { tag } = e;
+  // 断网后 SW 监听不到 sync 事件
+  console.log(`Service Worker 需要进行后台同步，tag: ${tag}`);
+
+  let tags = ['sample_sync'];
+  let syncHandlers = [sampleSyncHandler];
+
+  let idx = tags.indexOf(tag);
+  syncHandlers[idx](e);
+});

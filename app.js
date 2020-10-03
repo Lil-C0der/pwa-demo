@@ -72,6 +72,18 @@ router.post('/push', koaBody(), async (ctx) => {
   };
 });
 
+/* ====================== */
+/*       后台同步相关      */
+/* ====================== */
+
+router.get('/sync', async (ctx, next) => {
+  console.log(`Hello ${ctx.request.query.name}, I have received your msg`);
+
+  ctx.response.body = {
+    status: 0
+  };
+});
+
 app.use(router.routes());
 
 app.use(serve(__dirname + '/public'));

@@ -179,6 +179,31 @@
     );
   }
 
+  // 触发一个同步事件
+  function onSyncBtnClick(registration) {
+    const tag = 'sample_sync';
+    registration.sync.register(tag).then(
+      () => {
+        console.log('同步已触发', tag);
+      },
+      (err) => {
+        console.log('触发失败', err);
+      }
+    );
+  }
+
+  // 监听几个同步按钮
+  function initSyncListener(registration) {
+    const syncEventBtnEL = document.querySelector('#syncEventBtn'),
+      syncDBBtnEl = document.querySelector('#syncDBBtn'),
+      syncBtnEl = document.querySelector('#syncBtn');
+
+    syncBtnEl.addEventListener(
+      'click',
+      onSyncBtnClick.bind(this, registration)
+    );
+  }
+
   const searchBtnEl = document.querySelector('#searchBtn');
   searchBtnEl.addEventListener('click', querySongs);
 
@@ -193,6 +218,7 @@
         .then((registration) => askForPermission(registration))
         .then((registration) => {
           initNotifyListener(registration);
+          initSyncListener(registration);
           return subscribePushService(registration, publicKey);
         })
         .then((subscription) => {
