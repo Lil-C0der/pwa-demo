@@ -77,6 +77,7 @@ self.addEventListener('activate', (event) => {
   return self.clients.claim();
 });
 
+// 监听 Push Service 的 Push 推送
 self.addEventListener('push', (e) => {
   let { data } = e;
   if (data) {
@@ -87,4 +88,19 @@ self.addEventListener('push', (e) => {
   } else {
     console.log('push 的消息为空');
   }
+});
+
+// 监听消息提醒的点击事件，Notification 相关
+self.addEventListener('notificationclick', (e) => {
+  let { action } = e;
+  e.waitUntil(
+    self.clients.matchAll().then((clients) => {
+      if (clients?.length) {
+        // 使用 postMessage 与前端通信
+        clients.forEach((client) => {
+          client.postMessage(action);
+        });
+      }
+    })
+  );
 });

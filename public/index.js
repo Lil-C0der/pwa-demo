@@ -159,8 +159,8 @@
           title: '去看看'
         },
         {
-          action: 'contact-me',
-          title: '联系我'
+          action: 'do-not-disturb',
+          title: '免打扰'
         }
       ],
       tag: 'pwa-starter',
@@ -205,6 +205,32 @@
         });
     }
   };
+
+  // 处理用户和提醒交互
+  function onHaveALookBtnClick() {
+    console.log('去看看');
+    window.open(
+      'https://music.163.com/playlist?id=5200520415&userid=126735223'
+    );
+  }
+  function onDoNotDisturbBtnClick() {
+    console.log('不再提醒');
+  }
+  function onNotificationClick() {
+    console.log('消息被点击了');
+  }
+  // SW 监听 message 事件
+  navigator.serviceWorker.addEventListener('message', (e) => {
+    let action = e.data;
+    let actions = ['have-a-look', 'do-not-disturb'];
+    let actionHandlers = [onHaveALookBtnClick, onDoNotDisturbBtnClick];
+    const idx = actions.indexOf(action);
+    if (idx > -1) {
+      actionHandlers[idx]();
+    } else {
+      onNotificationClick();
+    }
+  });
 
   window.addEventListener('keypress', function (e) {
     if (e.code === 'Enter') {
