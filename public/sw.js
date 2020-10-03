@@ -83,8 +83,25 @@ self.addEventListener('push', (e) => {
   if (data) {
     data = data.json();
     console.log('push 的消息为：', data);
+    let title = 'PWA DEMO';
+    let options = {
+      body: data,
+      icon: '/img/icons/yandhi-128.png',
+      actions: [
+        {
+          action: 'have-a-look',
+          title: '去看看'
+        },
+        {
+          action: 'do-not-disturb',
+          title: '免打扰'
+        }
+      ],
+      tag: 'pwa-starter',
+      renotify: true
+    };
     // 显示提醒消息，属于 Notification
-    self.registration.showNotification(data);
+    self.registration.showNotification(title, options);
   } else {
     console.log('push 的消息为空');
   }
@@ -96,10 +113,15 @@ self.addEventListener('notificationclick', (e) => {
   e.waitUntil(
     self.clients.matchAll().then((clients) => {
       if (clients?.length) {
+        // 在其他标签页时，自动切换到当前站点的标签页
+        clients[0].focus();
         // 使用 postMessage 与前端通信
         clients.forEach((client) => {
           client.postMessage(action);
         });
+      } else {
+        // 当不存在 client 时，打开我们的网站
+        self.clients.openWindow('http://127.0.0.1:8080');
       }
     })
   );
