@@ -80,7 +80,8 @@ router.get('/sync', async (ctx, next) => {
   console.log(`Hello ${ctx.request.query.name}, I have received your msg`);
 
   ctx.response.body = {
-    status: 0
+    status: 0,
+    data: `receive message from ${ctx.request.query.name}`
   };
 });
 

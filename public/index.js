@@ -182,14 +182,37 @@
   // 触发一个同步事件
   function onSyncBtnClick(registration) {
     const tag = 'sample_sync';
-    registration.sync.register(tag).then(
-      () => {
+    registration.sync
+      .register(tag)
+      .then(() => {
         console.log('同步已触发', tag);
-      },
-      (err) => {
+      })
+      .catch((err) => {
         console.log('触发失败', err);
+      });
+  }
+
+  // 触发一个同步事件，并通过 postMessage 方法向 SW 传递数据
+  function onSyncEventBtnClick(registration) {
+    const tag = 'sample_sync_event';
+
+    const val = document.querySelector('#searchIpt').value;
+    let data = {
+      type: 'bgSync',
+      msg: {
+        name: val
       }
-    );
+    };
+
+    registration.sync
+      .register(tag)
+      .then(() => {
+        console.log('同步已触发', tag);
+        navigator.serviceWorker.controller.postMessage(data);
+      })
+      .catch((err) => {
+        console.log('触发失败', err);
+      });
   }
 
   // 监听几个同步按钮
@@ -201,6 +224,10 @@
     syncBtnEl.addEventListener(
       'click',
       onSyncBtnClick.bind(this, registration)
+    );
+    syncEventBtnEL.addEventListener(
+      'click',
+      onSyncEventBtnClick.bind(this, registration)
     );
   }
 

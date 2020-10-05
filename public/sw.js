@@ -133,14 +133,76 @@ function sampleSyncHandler(e) {
   };
   const request = new Request(`sync?name=Lil-C0der`, options);
   e.waitUntil(
-    fetch(request).then((response) => {
-      response.json().then((res) => {
-        console.log('response', res);
-      });
-      return response;
+    fetch(request)
+      .then((response) => response.json())
+      .then(console.log('response from server', res))
+  );
+}
+
+class EventBus {
+  constructor() {
+    this.listeners = [];
+  }
+  on(tag, cb) {
+    if (!this.listeners[tag]) {
+      this.listeners[tag] = [];
+    }
+    this.listeners[tag].push(cb);
+  }
+
+  trigger(tag, data) {
+    if (!this.listeners[tag]) {
+      this.listeners[tag] = [];
+    }
+    while (this.listeners[tag]?.length) {
+      let fn = this.listeners[tag].pop();
+      fn(data);
+    }
+  }
+}
+
+// 监听前端代码通过 postMessage 发来的消息
+const bus = new EventBus();
+
+function sampleSyncEventHandler(e) {
+  // 因为 e.waitUtil 接收 Promise 作为参数
+  // 所以这里把向 bus 注册监听的方法包装成 Promise
+  let msgPromise = new Promise((resolve) => {
+    // callback 被调用后这个 Promise 被 resolve，才会发出请求
+    function onBgSync(data = {}) {
+      resolve(data);
+    }
+    // 在 bus 中添加对 bgSync 事件的监听
+    bus.on('bgSync', onBgSync);
+    // 五秒后超时，resolve
+    setTimeout(resolve, 5000);
+  });
+
+  e.waitUntil(
+    // trigger 后把数据发送到后端
+    msgPromise.then((data) => {
+      const options = {
+        method: 'GET'
+      };
+      const name = data?.name || 'anonymous';
+      const request = new Request(`sync?name=${name}`, options);
+
+      fetch(request)
+        .then((response) => response.json())
+        .then((res) => {
+          console.log('response from server', res);
+        });
     })
   );
 }
+
+self.addEventListener('message', (e) => {
+  let { type } = e.data;
+  let { msg } = e.data;
+  // 使用 bus 来解耦 message 事件和 sync 事件
+  // 触发 callback，resolve Promise
+  bus.trigger(type, msg);
+});
 
 // 监听 sync 事件，后台同步相关
 self.addEventListener('sync', (e) => {
@@ -148,8 +210,8 @@ self.addEventListener('sync', (e) => {
   // 断网后 SW 监听不到 sync 事件
   console.log(`Service Worker 需要进行后台同步，tag: ${tag}`);
 
-  let tags = ['sample_sync'];
-  let syncHandlers = [sampleSyncHandler];
+  let tags = ['sample_sync', 'sample_sync_event'];
+  let syncHandlers = [sampleSyncHandler, sampleSyncEventHandler];
 
   let idx = tags.indexOf(tag);
   syncHandlers[idx](e);
