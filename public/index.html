@@ -19,6 +19,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <!-- 状态栏样式 -->
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <!-- Resource Hint 相关标签 -->
+    <link rel="prefetch" href="./detail.js" />
   </head>
 
   <link rel="stylesheet" href="./style.css" />
@@ -36,9 +38,7 @@
 
     <div id="loadingIcon" class="loadingIcon"></div>
 
-    <div id="songsList" class="list">
-      <div id="songsList" class="list"></div>
-    </div>
+    <div id="songsList" class="list"></div>
 
     <div class="sideBtn">
       <div id="syncEventBtn" class="sideBtn_sync">同步 (event)</div>
@@ -51,4 +51,11 @@
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script type="text/javascript" src="./base64Utils.js"></script>
   <script src="./index.js"></script>
+  <script>
+    const listEl = document.querySelector('#songsList');
+    listEl.addEventListener('click', (e) => {
+      console.log('click');
+      location.href = '/detail.html';
+    });
+  </script>
 </html>

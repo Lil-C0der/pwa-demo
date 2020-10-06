@@ -87,6 +87,18 @@ router.get('/sync', async (ctx, next) => {
 
 app.use(router.routes());
 
+// // 使用 koa-static 设置响应头，Prefetch 相关
+// app.use(
+//   serve(__dirname + '/public', {
+//     maxage: 1000 * 60 * 60,
+//     setHeaders: (res, path, stats) => {
+//       if (/index.html/.test(path)) {
+//         res.setHeader('Link', '</detail.js>; rel="prefetch"; as="script"');
+//       }
+//     }
+//   })
+// );
+
 app.use(serve(__dirname + '/public'));
 
 app.listen(PORT, () => {
