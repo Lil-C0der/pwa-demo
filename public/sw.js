@@ -127,6 +127,7 @@ self.addEventListener('notificationclick', (e) => {
   );
 });
 
+// 处理最简单的 sync 事件
 function sampleSyncHandler(e) {
   const options = {
     method: 'GET'
@@ -164,6 +165,7 @@ class EventBus {
 // 监听前端代码通过 postMessage 发来的消息
 const bus = new EventBus();
 
+// 往 bus 中添加回调，回调执行后携带前端数据发起网络请求
 function sampleSyncEventHandler(e) {
   // 因为 e.waitUtil 接收 Promise 作为参数
   // 所以这里把向 bus 注册监听的方法包装成 Promise
@@ -204,14 +206,77 @@ self.addEventListener('message', (e) => {
   bus.trigger(type, msg);
 });
 
+// 连接数据库
+function initStore(storeName) {
+  return new Promise((resolve, reject) => {
+    let request = indexedDB.open('PWA_DB', 1);
+    request.onerror = (err) => {
+      console.log('连接数据库失败');
+      reject(err);
+    };
+    request.onsuccess = (e) => {
+      console.log('成功连接数据库');
+      resolve(e.target.result);
+    };
+  });
+}
+
+// 在 indexedDB 中读取数据，发送给后端
+function sampleSyncDBHandler(e) {
+  const STORE_NAME = 'SyncData';
+
+  let dbQueryPromise = new Promise((resolve, reject) => {
+    initStore(STORE_NAME)
+      .then((db) => {
+        // 创建事务，查询数据库
+        let tx = db.transaction(STORE_NAME, 'readonly');
+        let store = tx.objectStore(STORE_NAME);
+        let dbRequest = store.get(e.tag);
+
+        dbRequest.onsuccess = (e) => {
+          // e 是一个事件对象，e.target.result 才是查询的结果
+          resolve(e.target.result);
+        };
+        dbRequest.onerror = (err) => {
+          reject(err);
+        };
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+
+  // 查询完成后，发起网络请求
+  e.waitUntil(
+    dbQueryPromise.then((data) => {
+      const options = {
+        method: 'GET'
+      };
+
+      const name = data?.name || 'anonymous';
+      const request = new Request(`sync?name=${name}`, options);
+
+      fetch(request)
+        .then((response) => response.json())
+        .then((res) => {
+          console.log('response from server', res);
+        });
+    })
+  );
+}
+
 // 监听 sync 事件，后台同步相关
 self.addEventListener('sync', (e) => {
   let { tag } = e;
   // 断网后 SW 监听不到 sync 事件
   console.log(`Service Worker 需要进行后台同步，tag: ${tag}`);
 
-  let tags = ['sample_sync', 'sample_sync_event'];
-  let syncHandlers = [sampleSyncHandler, sampleSyncEventHandler];
+  let tags = ['sample_sync', 'sample_sync_event', 'sample_sync_db'];
+  let syncHandlers = [
+    sampleSyncHandler,
+    sampleSyncEventHandler,
+    sampleSyncDBHandler
+  ];
 
   let idx = tags.indexOf(tag);
   syncHandlers[idx](e);

@@ -215,6 +215,60 @@
       });
   }
 
+  // indexedDB相关 连接数据库 创建 store
+  function initStore(storeName) {
+    return new Promise((resolve, reject) => {
+      if (!'indexedDB' in window) {
+        reject('do not support indexedDB');
+      }
+      let request = indexedDB.open('PWA_DB', 1);
+      request.onerror = (err) => {
+        console.log('连接数据库失败');
+        reject(err);
+      };
+      request.onsuccess = (e) => {
+        console.log('成功连接数据库');
+        resolve(e.target.result);
+      };
+      request.onupgradeneeded = (e) => {
+        console.log('升级数据库');
+        // let db = e.srcElement.result
+        let db = e.target.result;
+        if (e.oldVersion === 0) {
+          if (!db.objectStoreNames.contains(storeName)) {
+            let store = db.createObjectStore(storeName, {
+              keyPath: 'tag'
+            });
+
+            store.createIndex(`${storeName}Index`, 'tag', { unique: false });
+            console.log('成功创建索引');
+          }
+        }
+      };
+    });
+  }
+  // 触发一个同步事件，将数据存入 indexedDB
+  function onSyncDBBtnClick(registration, db, STORE_NAME) {
+    const tag = 'sample_sync_db';
+    const val = document.querySelector('#searchIpt').value;
+
+    // 创建事务，将数据存进 indexedDB
+    let tx = db.transaction(STORE_NAME, 'readwrite');
+    let store = tx.objectStore(STORE_NAME);
+    const item = { tag, name: val };
+    store.put(item);
+
+    // 注册同步事件
+    registration.sync
+      .register(tag)
+      .then(() => {
+        console.log('同步已触发', tag);
+      })
+      .catch((err) => {
+        console.log('触发失败', err);
+      });
+  }
+
   // 监听几个同步按钮
   function initSyncListener(registration) {
     const syncEventBtnEL = document.querySelector('#syncEventBtn'),
@@ -229,6 +283,15 @@
       'click',
       onSyncEventBtnClick.bind(this, registration)
     );
+
+    // 先创建 indexedDB 的 store
+    const STORE_NAME = 'SyncData';
+    initStore(STORE_NAME).then((db) => {
+      syncDBBtnEl.addEventListener(
+        'click',
+        onSyncDBBtnClick.bind(this, registration, db, STORE_NAME)
+      );
+    });
   }
 
   const searchBtnEl = document.querySelector('#searchBtn');
